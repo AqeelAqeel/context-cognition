@@ -1,22 +1,9 @@
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-  display: "swap",
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-jetbrains-mono",
-  subsets: ["latin"],
-  display: "swap",
-});
-
 export const metadata: Metadata = {
-  title: "Adaptive Context Framework (ACF)",
-  description: "3-Layer LLM Architecture Visualization Platform",
+  title: "Salience - Organizational Memory & Coordination Engine",
+  description: "An organizational memory and coordination engine that maximizes throughput toward your company's goals",
 };
 
 export default function RootLayout({
@@ -27,7 +14,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${inter.variable} ${jetbrainsMono.variable} font-sans antialiased bg-gray-50`}
+        className="font-sans antialiased bg-black"
       >
         {children}
       </body>
