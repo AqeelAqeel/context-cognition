@@ -9,14 +9,10 @@ export function HeroSection() {
 
       <div className="container mx-auto px-6 md:px-12 text-center relative z-10">
         {/* Main heading */}
-        <h1 className="text-7xl md:text-9xl font-bold mb-8 text-shadow-glow tracking-tight">
-          <span className="bg-gradient-to-r from-white via-gray-200 to-white bg-clip-text text-transparent">
-            This is
-          </span>
+        <h1 className="text-7xl md:text-9xl font-bold mb-8 text-white text-shadow-glow tracking-tight">
+          This is
           <br />
-          <span className="gradient-metallic bg-clip-text text-transparent">
-            Salience
-          </span>
+          Salience
         </h1>
 
         {/* Tagline */}
