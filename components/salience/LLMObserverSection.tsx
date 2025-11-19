@@ -84,11 +84,11 @@ export function LLMObserverSection() {
   const highlightText = (text: string, highlights: string[]) => {
     let result = text;
     highlights.forEach((highlight, idx) => {
-      const colors = ['bg-purple-500/30', 'bg-blue-500/30', 'bg-green-500/30'];
+      const colors = ['text-purple-400', 'text-cyan-400', 'text-green-400'];
       const color = colors[idx % colors.length];
       result = result.replace(
         new RegExp(`(${highlight})`, 'gi'),
-        `<span class="${color} px-1 rounded"=>$1</span>`
+        `<span class="${color} font-semibold">$1</span>`
       );
     });
     return result;

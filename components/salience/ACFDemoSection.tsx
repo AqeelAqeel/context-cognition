@@ -13,7 +13,7 @@ import { ModalStack, useModals } from '@/components/ModalStack';
 import { UseCaseTabs } from '@/components/UseCaseTabs';
 import { ChatCanvas } from '@/components/ChatCanvas';
 import { ConversionStrip, generateConversionActions } from '@/components/ConversionStrip';
-import { LayerPanel } from '@/components/LayerPanel';
+import { OrganizationalFlowDiagram } from '@/components/salience/OrganizationalFlowDiagram';
 
 export function ACFDemoSection() {
   // Core state
@@ -236,35 +236,9 @@ export function ACFDemoSection() {
             </div>
           </div>
 
-          {/* Layer Architecture Section */}
-          <div className="mt-12 space-y-8">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-gray-100 mb-3">
-                Architecture Layers
-              </h2>
-              <p className="text-lg text-gray-400 max-w-2xl mx-auto">
-                Real-time visibility into the 3-layer intelligent system processing your requests
-              </p>
-            </div>
-
-            <div className="space-y-8">
-              {/* Layer B: Observer/Analyst */}
-              <div className="bg-gradient-to-r from-amber-900/20 to-orange-900/20 rounded-2xl p-1 border border-amber-800/30">
-                <LayerPanel
-                  type="oa"
-                  derivedVars={derivedVars}
-                />
-              </div>
-
-              {/* Layer C: Conductor/Orchestrator */}
-              <div className="bg-gradient-to-r from-indigo-900/20 to-blue-900/20 rounded-2xl p-1 border border-indigo-800/30">
-                <LayerPanel
-                  type="co"
-                  contextPack={contextPack}
-                  compiledPrompt={compiledPrompt}
-                />
-              </div>
-            </div>
+          {/* Organizational Flow Diagram */}
+          <div className="mt-12">
+            <OrganizationalFlowDiagram />
           </div>
         </div>
       </div>
