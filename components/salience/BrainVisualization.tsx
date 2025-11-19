@@ -2,13 +2,25 @@
 
 export function BrainVisualization() {
   const dataSources = [
-    { label: 'Coordination Work Platform', position: 'top-left', color: 'from-purple-400 to-pink-400' },
-    { label: 'Project Management Tools', position: 'top-right', color: 'from-blue-400 to-cyan-400' },
-    { label: 'Customer Usage & Metrics', position: 'right', color: 'from-green-400 to-emerald-400' },
-    { label: 'First-Time User Flow', position: 'bottom-right', color: 'from-orange-400 to-red-400' },
-    { label: 'Market Communications', position: 'bottom-left', color: 'from-yellow-400 to-orange-400' },
-    { label: 'Customer Needs & Usage', position: 'left', color: 'from-indigo-400 to-purple-400' },
+    { label: 'Coordination Work Platform', position: 'top-left', color: 'from-purple-400 to-pink-400', x: 100, y: 100 },
+    { label: 'Project Management Tools', position: 'top-right', color: 'from-blue-400 to-cyan-400', x: 700, y: 100 },
+    { label: 'Customer Usage & Metrics', position: 'right', color: 'from-green-400 to-emerald-400', x: 750, y: 300 },
+    { label: 'First-Time User Flow', position: 'bottom-right', color: 'from-orange-400 to-red-400', x: 700, y: 500 },
+    { label: 'Market Communications', position: 'bottom-left', color: 'from-yellow-400 to-orange-400', x: 100, y: 500 },
+    { label: 'Customer Needs & Usage', position: 'left', color: 'from-indigo-400 to-purple-400', x: 50, y: 300 },
   ];
+
+  // Create S-curved path from source to center
+  const createPath = (x: number, y: number, centerX: number, centerY: number) => {
+    const dx = centerX - x;
+    const dy = centerY - y;
+    const controlX1 = x + dx * 0.5;
+    const controlY1 = y;
+    const controlX2 = x + dx * 0.5;
+    const controlY2 = centerY;
+
+    return `M ${x} ${y} C ${controlX1} ${controlY1}, ${controlX2} ${controlY2}, ${centerX} ${centerY}`;
+  };
 
   return (
     <section className="min-h-screen flex items-center justify-center relative py-20">
@@ -27,9 +39,41 @@ export function BrainVisualization() {
         {/* Brain visualization container */}
         <div className="relative max-w-6xl mx-auto h-[600px] flex items-center justify-center">
 
+          {/* SVG layer for connections */}
+          <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 800 600">
+            <defs>
+              <linearGradient id="lineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="rgba(139, 92, 246, 0.6)" />
+                <stop offset="100%" stopColor="rgba(59, 130, 246, 0.6)" />
+              </linearGradient>
+            </defs>
+
+            {/* S-curved dotted lines */}
+            {dataSources.map((source, idx) => (
+              <g key={idx}>
+                <path
+                  d={createPath(source.x, source.y, 400, 300)}
+                  stroke="url(#lineGradient)"
+                  strokeWidth="2"
+                  fill="none"
+                  strokeDasharray="8 6"
+                  opacity="0.5"
+                />
+                {/* Animated dots along path */}
+                <circle r="4" fill="rgba(139, 92, 246, 0.8)">
+                  <animateMotion
+                    dur={`${3 + idx * 0.5}s`}
+                    repeatCount="indefinite"
+                    path={createPath(source.x, source.y, 400, 300)}
+                  />
+                </circle>
+              </g>
+            ))}
+          </svg>
+
           {/* Central brain/engine */}
-          <div className="relative z-10">
-            <div className="w-64 h-64 rounded-full gradient-rainbow opacity-80 blur-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
+          <div className="relative z-10" style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }}>
+            <div className="w-64 h-64 rounded-full gradient-rainbow opacity-40 blur-2xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2" />
             <div className="relative w-48 h-48 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-blue-500 flex items-center justify-center shadow-2xl animate-pulse-subtle">
               <div className="text-center">
                 <div className="text-6xl mb-2">🧠</div>
@@ -53,48 +97,27 @@ export function BrainVisualization() {
             return (
               <div
                 key={idx}
-                className={`absolute ${positions[source.position as keyof typeof positions]} animate-float`}
+                className={`absolute ${positions[source.position as keyof typeof positions]} animate-float z-20`}
                 style={{ animationDelay: `${idx * 0.5}s` }}
               >
-                {/* Connection line to center */}
-                <svg className="absolute top-1/2 left-1/2 w-48 h-48 -z-10 opacity-30" style={{
-                  transform: 'translate(-50%, -50%)',
-                }}>
-                  <line
-                    x1="50%"
-                    y1="50%"
-                    x2={source.position.includes('left') ? '100%' : source.position.includes('right') ? '0%' : '50%'}
-                    y2={source.position.includes('top') ? '100%' : source.position.includes('bottom') ? '0%' : '50%'}
-                    stroke="url(#gradient)"
-                    strokeWidth="2"
-                    strokeDasharray="4 4"
-                  />
-                  <defs>
-                    <linearGradient id="gradient">
-                      <stop offset="0%" stopColor="rgba(139, 92, 246, 0.5)" />
-                      <stop offset="100%" stopColor="rgba(59, 130, 246, 0.5)" />
-                    </linearGradient>
-                  </defs>
-                </svg>
-
-                <div className={`bg-gradient-to-br ${source.color} p-4 rounded-xl shadow-lg max-w-[180px] backdrop-blur-sm bg-opacity-20`}>
+                <div className={`bg-gradient-to-br ${source.color} p-4 rounded-xl shadow-lg max-w-[180px] backdrop-blur-sm bg-opacity-30 border border-white/20`}>
                   <p className="text-sm font-semibold text-white text-center">{source.label}</p>
                 </div>
               </div>
             );
           })}
 
-          {/* Synapses firing effect */}
+          {/* Synapses firing effect - clearer dots */}
           <div className="absolute inset-0 pointer-events-none">
-            {[...Array(8)].map((_, i) => (
+            {[...Array(12)].map((_, i) => (
               <div
                 key={i}
-                className="absolute w-2 h-2 bg-blue-400 rounded-full animate-ping"
+                className="absolute w-3 h-3 bg-cyan-400 rounded-full animate-ping"
                 style={{
-                  top: `${Math.random() * 100}%`,
-                  left: `${Math.random() * 100}%`,
-                  animationDelay: `${i * 0.7}s`,
-                  opacity: 0.6,
+                  top: `${20 + Math.random() * 60}%`,
+                  left: `${20 + Math.random() * 60}%`,
+                  animationDelay: `${i * 0.5}s`,
+                  opacity: 0.8,
                 }}
               />
             ))}

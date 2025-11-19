@@ -4,66 +4,95 @@ import { useState } from 'react';
 
 export function LLMObserverSection() {
   const [activeTab, setActiveTab] = useState(0);
+  const [selectedVariable, setSelectedVariable] = useState<number | null>(null);
 
   const tabs = [
-    { name: 'Memory & Context', icon: '🧠' },
-    { name: 'Adaptation', icon: '🔄' },
-    { name: 'Organization Heuristics', icon: '🎯' },
+    { name: 'Product Manager', icon: '📊', role: 'PM' },
+    { name: 'Designer', icon: '🎨', role: 'Designer' },
+    { name: 'Engineer', icon: '⚙️', role: 'Engineer' },
   ];
 
-  const tabContent = [
+  const conversations = [
     {
-      title: 'Conversation & Work Memory',
-      features: [
-        { label: 'Recent conversations', value: 'Last 7 days', active: true },
-        { label: 'Work orders', value: '12 active', active: true },
-        { label: 'Recent events', value: 'Product launch prep', active: true },
-        { label: 'Market context', value: 'Q4 competitive landscape', active: false },
-        { label: 'Meeting notes', value: 'Strategy session 11/15', active: true },
-        { label: 'Async communications', value: 'Slack threads (18)', active: true },
+      role: 'Product Manager',
+      messages: [
+        { sender: 'PM', text: 'We need to prioritize the mobile onboarding flow for Q1', highlighted: ['mobile onboarding', 'Q1'] },
+        { sender: 'Salience', text: 'Based on your roadmap and current DAU metrics, I recommend focusing on the first-time user experience. The A/B test shows 23% drop-off at step 2.', highlighted: ['roadmap', 'DAU metrics', 'first-time user', 'A/B test', '23% drop-off'] },
+        { sender: 'PM', text: 'What are the resource constraints?', highlighted: ['resource constraints'] },
+        { sender: 'Salience', text: 'You have 2 engineers allocated, $50k budget remaining, and 6 weeks until launch.', highlighted: ['2 engineers', '$50k budget', '6 weeks'] },
       ],
-      llmOutput: [
-        { text: 'User input:', color: 'text-blue-400', content: '"What\'s the status on the mobile rollout?"' },
-        { text: 'Parsing:', color: 'text-purple-400', content: 'Intent: status_check, Entity: mobile_rollout, Context: product_launch' },
-        { text: 'Interpretation:', color: 'text-green-400', content: 'User wants update on mobile feature deployment discussed in last strategy meeting' },
-        { text: 'Response:', color: 'text-yellow-400', content: 'Based on Nov 15 strategy session and recent Slack updates...' },
-      ],
+      variables: ['Organizational Heuristics', 'User Intent', 'Technical Context']
     },
     {
-      title: 'Personalization & Adaptation',
-      features: [
-        { label: 'Communication style', value: 'Direct, technical', active: true },
-        { label: 'Preferred interface', value: 'Chat + buttons', active: true },
-        { label: 'Response length', value: 'Concise (< 100 words)', active: true },
-        { label: 'Learning rate', value: 'Adapting (87%)', active: true },
-        { label: 'Audio input enabled', value: 'Yes', active: false },
-        { label: 'Notification preference', value: 'Critical only', active: true },
+      role: 'Designer',
+      messages: [
+        { sender: 'Designer', text: 'The new dashboard feels cluttered. How do we simplify without losing functionality?', highlighted: ['dashboard', 'cluttered', 'simplify'] },
+        { sender: 'Salience', text: 'Your user research shows 68% of users only use 3 core features. I can help prioritize the interface based on actual usage patterns and your design system.', highlighted: ['user research', '68%', '3 core features', 'usage patterns', 'design system'] },
+        { sender: 'Designer', text: 'Show me the top 3 features by engagement', highlighted: ['top 3 features', 'engagement'] },
+        { sender: 'Salience', text: '1. Analytics view (89% weekly), 2. Export reports (72% weekly), 3. Team collaboration (64% weekly)', highlighted: ['Analytics', 'Export', 'Team collaboration'] },
       ],
-      llmOutput: [
-        { text: 'User profile:', color: 'text-cyan-400', content: 'Engineering lead, prefers technical depth over summaries' },
-        { text: 'Language adaptation:', color: 'text-pink-400', content: 'Uses "rollout", "deployment", "infra" - matching user vocabulary' },
-        { text: 'Interface preference:', color: 'text-orange-400', content: 'Quick action buttons + expandable details' },
-        { text: 'Timing:', color: 'text-indigo-400', content: 'Active mornings 8-10am, prefers async updates afternoon' },
+      variables: ['Personalization', 'User Intent', 'Organizational Heuristics']
+    },
+    {
+      role: 'Engineer',
+      messages: [
+        { sender: 'Engineer', text: 'I need to refactor the auth system. What is the impact on the release timeline?', highlighted: ['refactor', 'auth system', 'release timeline'] },
+        { sender: 'Salience', text: 'Based on the current sprint and your team velocity, this would add 1.5 weeks. However, tech debt is flagged as high priority in your roadmap.', highlighted: ['sprint', 'team velocity', '1.5 weeks', 'tech debt', 'high priority'] },
+        { sender: 'Engineer', text: 'Can we parallelize with the mobile work?', highlighted: ['parallelize', 'mobile work'] },
+        { sender: 'Salience', text: 'Yes - auth refactor can run parallel. I will coordinate with the PM to adjust milestones and notify stakeholders.', highlighted: ['parallel', 'coordinate', 'adjust milestones', 'notify stakeholders'] },
       ],
+      variables: ['Technical Context', 'Organizational Heuristics', 'User Intent']
+    },
+  ];
+
+  const variableButtons = [
+    { name: 'Personalization & User Intent', icon: '👤', color: 'from-purple-500 to-pink-500' },
+    { name: 'Technical Context & Goals', icon: '🔧', color: 'from-blue-500 to-cyan-500' },
+    { name: 'Organizational Heuristics', icon: '🏢', color: 'from-green-500 to-emerald-500' },
+  ];
+
+  const analysisData = [
+    {
+      title: 'Personalization & User Intent',
+      items: [
+        { label: 'User preference', value: 'Direct communication style', color: 'text-purple-400' },
+        { label: 'Intent classification', value: 'Feature prioritization request', color: 'text-pink-400' },
+        { label: 'Context window', value: 'Last 3 conversations + roadmap', color: 'text-purple-300' },
+        { label: 'Response adaptation', value: 'Data-driven, concise answers', color: 'text-pink-300' },
+      ]
+    },
+    {
+      title: 'Technical Context & Goals',
+      items: [
+        { label: 'Current sprint', value: 'Sprint 12 - Mobile focus', color: 'text-blue-400' },
+        { label: 'Team velocity', value: '34 story points/sprint', color: 'text-cyan-400' },
+        { label: 'Tech stack', value: 'React Native, Node.js, PostgreSQL', color: 'text-blue-300' },
+        { label: 'Active experiments', value: 'Onboarding A/B test (running)', color: 'text-cyan-300' },
+      ]
     },
     {
       title: 'Organizational Heuristics',
-      features: [
-        { label: 'Strategic focus', value: 'Mobile-first growth', active: true },
-        { label: 'Current experiments', value: 'Onboarding A/B test', active: true },
-        { label: 'Key metrics', value: 'DAU, retention, NPS', active: true },
-        { label: 'Budget constraints', value: '$2M dev budget', active: true },
-        { label: 'Timeline', value: 'Q1 2025 launch', active: true },
-        { label: 'Risk tolerance', value: 'Moderate', active: false },
-      ],
-      llmOutput: [
-        { text: 'Strategy alignment:', color: 'text-green-400', content: 'Mobile rollout is Priority 1 per Q4 roadmap' },
-        { text: 'Experiment context:', color: 'text-purple-400', content: 'A/B test running on onboarding flow, affects mobile UX decisions' },
-        { text: 'Metric check:', color: 'text-blue-400', content: 'Rollout targets: +15% DAU, +20% D7 retention' },
-        { text: 'Guardrails:', color: 'text-red-400', content: 'Budget: 60% allocated, Timeline: on track, Risk: flagged for QA coverage' },
-      ],
+      items: [
+        { label: 'Strategic priority', value: 'Mobile-first growth (Q1 2025)', color: 'text-green-400' },
+        { label: 'Budget constraints', value: '$2M dev budget, 60% allocated', color: 'text-emerald-400' },
+        { label: 'Risk tolerance', value: 'Moderate - prioritize quality', color: 'text-green-300' },
+        { label: 'Key metrics', value: 'DAU +15%, D7 retention +20%', color: 'text-emerald-300' },
+      ]
     },
   ];
+
+  const highlightText = (text: string, highlights: string[]) => {
+    let result = text;
+    highlights.forEach((highlight, idx) => {
+      const colors = ['bg-purple-500/30', 'bg-blue-500/30', 'bg-green-500/30'];
+      const color = colors[idx % colors.length];
+      result = result.replace(
+        new RegExp(`(${highlight})`, 'gi'),
+        `<span class="${color} px-1 rounded"=>$1</span>`
+      );
+    });
+    return result;
+  };
 
   return (
     <section className="min-h-screen flex items-center justify-center relative py-20 bg-gradient-to-b from-gray-950 via-black to-gray-950">
@@ -72,81 +101,153 @@ export function LLMObserverSection() {
         <div className="text-center mb-16">
           <h2 className="text-5xl md:text-6xl font-bold mb-6 text-shadow-elegant">
             <span className="gradient-metallic bg-clip-text text-transparent">
-              The LLM Observer Interface
+              The LLM Observer & Interfacer
             </span>
           </h2>
           <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
-            Personalized intelligence that understands you, your team, and your goals
+            Context-aware intelligence that personalizes to each team member
           </p>
         </div>
 
-        {/* Tabs */}
-        <div className="flex flex-wrap justify-center gap-4 mb-12">
-          {tabs.map((tab, idx) => (
-            <button
-              key={idx}
-              onClick={() => setActiveTab(idx)}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 flex items-center gap-2 ${
-                activeTab === idx
-                  ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-lg scale-105'
-                  : 'bg-gray-800 text-gray-400 hover:bg-gray-700'
-              }`}
-            >
-              <span className="text-2xl">{tab.icon}</span>
-              <span>{tab.name}</span>
-            </button>
-          ))}
-        </div>
+        {/* 3-Part Layout */}
+        <div className="grid md:grid-cols-12 gap-8 max-w-7xl mx-auto items-start">
 
-        {/* Tab content */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-7xl mx-auto">
-
-          {/* Left: Variables/Features */}
-          <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-8 border border-gray-700">
-            <h3 className="text-2xl font-bold text-white mb-6">{tabContent[activeTab].title}</h3>
-
-            <div className="space-y-3">
-              {tabContent[activeTab].features.map((feature, idx) => (
-                <div
+          {/* LEFT: Chat Modal with Tabs */}
+          <div className="md:col-span-5 bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl border border-gray-700 overflow-hidden">
+            {/* Tabs */}
+            <div className="flex border-b border-gray-700 bg-gray-900/50">
+              {tabs.map((tab, idx) => (
+                <button
                   key={idx}
-                  className={`flex items-center justify-between p-4 rounded-lg ${
-                    feature.active ? 'bg-green-500/10 border border-green-500/30' : 'bg-gray-800/50 border border-gray-700'
+                  onClick={() => setActiveTab(idx)}
+                  className={`flex-1 px-4 py-3 text-sm font-semibold transition-all flex items-center justify-center gap-2 ${
+                    activeTab === idx
+                      ? 'bg-gradient-to-r from-purple-600/20 to-pink-600/20 text-white border-b-2 border-purple-500'
+                      : 'text-gray-400 hover:text-gray-300'
                   }`}
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-2 h-2 rounded-full ${feature.active ? 'bg-green-400' : 'bg-gray-600'}`} />
-                    <span className="text-sm font-medium text-gray-300">{feature.label}</span>
-                  </div>
-                  <span className="text-sm text-white font-semibold">{feature.value}</span>
+                  <span className="text-lg">{tab.icon}</span>
+                  <span className="hidden sm:inline">{tab.role}</span>
+                </button>
+              ))}
+            </div>
+
+            {/* Chat Messages */}
+            <div className="p-6 space-y-4 h-[500px] overflow-y-auto">
+              {conversations[activeTab].messages.map((msg, idx) => (
+                <div
+                  key={idx}
+                  className={`${
+                    msg.sender === 'Salience'
+                      ? 'bg-gradient-to-r from-purple-900/30 to-blue-900/30 border-l-2 border-purple-500'
+                      : 'bg-gray-800/50'
+                  } p-4 rounded-lg`}
+                >
+                  <div className="text-xs font-semibold text-gray-400 mb-2">{msg.sender}</div>
+                  <div
+                    className="text-sm text-gray-200 leading-relaxed"
+                    dangerouslySetInnerHTML={{ __html: highlightText(msg.text, msg.highlighted) }}
+                  />
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Right: LLM Output */}
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 border border-gray-700">
-            <h3 className="text-2xl font-bold text-white mb-6">LLM Processing</h3>
+          {/* CENTER: Brain Icon with Connection Lines */}
+          <div className="md:col-span-2 flex items-center justify-center relative">
+            <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 200 600" style={{ overflow: 'visible' }}>
+              {/* Lines from left to brain */}
+              <line x1="0" y1="250" x2="100" y2="300" stroke="rgba(139, 92, 246, 0.4)" strokeWidth="2" strokeDasharray="5 5" />
 
-            <div className="space-y-4 font-mono text-sm">
-              {tabContent[activeTab].llmOutput.map((output, idx) => (
-                <div key={idx} className="space-y-1">
-                  <div className={`${output.color} font-bold`}>{output.text}</div>
-                  <div className="text-gray-400 pl-4 border-l-2 border-gray-700">{output.content}</div>
-                </div>
+              {/* Lines from brain to right */}
+              {variableButtons.map((_, idx) => (
+                <line
+                  key={idx}
+                  x1="100"
+                  y1="300"
+                  x2="200"
+                  y2={150 + idx * 100}
+                  stroke="rgba(59, 130, 246, 0.4)"
+                  strokeWidth="2"
+                  strokeDasharray="5 5"
+                  className={selectedVariable === idx ? 'opacity-100' : 'opacity-30'}
+                />
               ))}
-            </div>
+            </svg>
 
-            {/* Processing indicator */}
-            <div className="mt-6 pt-6 border-t border-gray-700">
-              <div className="flex items-center gap-3">
-                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse" />
-                <span className="text-sm text-gray-400">Processing active • Real-time adaptation</span>
+            {/* Brain Icon */}
+            <div className="relative z-10 my-48">
+              <div className="w-32 h-32 rounded-full gradient-rainbow opacity-30 blur-xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 animate-pulse-subtle" />
+              <div className="relative w-24 h-24 rounded-full bg-gradient-to-br from-purple-600 via-pink-500 to-blue-500 flex items-center justify-center shadow-2xl">
+                <div className="text-5xl">🧠</div>
+              </div>
+              <div className="text-center mt-3">
+                <div className="text-xs font-semibold text-gray-400">Salience</div>
+                <div className="text-xs text-gray-500">Engine</div>
               </div>
             </div>
+          </div>
+
+          {/* RIGHT: Vertical Button Stack */}
+          <div className="md:col-span-5 space-y-4">
+            {variableButtons.map((button, idx) => (
+              <div key={idx}>
+                <button
+                  onClick={() => setSelectedVariable(selectedVariable === idx ? null : idx)}
+                  className={`w-full p-4 rounded-xl font-semibold transition-all duration-300 flex items-center gap-3 ${
+                    selectedVariable === idx
+                      ? `bg-gradient-to-r ${button.color} text-white shadow-lg scale-105`
+                      : 'bg-gray-800 text-gray-300 hover:bg-gray-700 border border-gray-700'
+                  }`}
+                >
+                  <span className="text-2xl">{button.icon}</span>
+                  <span className="text-left flex-1">{button.name}</span>
+                  <svg
+                    className={`w-5 h-5 transition-transform ${selectedVariable === idx ? 'rotate-180' : ''}`}
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+
+                {/* Revealed Analysis Panel */}
+                {selectedVariable === idx && (
+                  <div className="mt-4 bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-gray-700 animate-fadeIn">
+                    <h3 className="text-lg font-bold text-white mb-4">{analysisData[idx].title}</h3>
+                    <div className="space-y-3">
+                      {analysisData[idx].items.map((item, itemIdx) => (
+                        <div key={itemIdx} className="flex items-start justify-between gap-4 p-3 bg-gray-800/50 rounded-lg">
+                          <div className="text-sm text-gray-400 min-w-[120px]">{item.label}</div>
+                          <div className={`text-sm font-semibold ${item.color} text-right flex-1`}>{item.value}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
           </div>
         </div>
 
       </div>
+
+      <style jsx>{`
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(-10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+      `}</style>
     </section>
   );
 }

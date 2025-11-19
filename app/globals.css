@@ -42,11 +42,11 @@ html {
 /* Gradient utilities */
 .gradient-metallic {
   background: linear-gradient(135deg,
-    #667eea 0%,
-    #764ba2 25%,
-    #f093fb 50%,
-    #4facfe 75%,
-    #00f2fe 100%);
+    rgba(102, 126, 234, 0.6) 0%,
+    rgba(118, 75, 162, 0.6) 25%,
+    rgba(240, 147, 251, 0.6) 50%,
+    rgba(79, 172, 254, 0.6) 75%,
+    rgba(0, 242, 254, 0.6) 100%);
   background-size: 200% 200%;
   animation: gradient-shift 8s ease infinite;
 }
@@ -59,12 +59,12 @@ html {
 
 .gradient-rainbow {
   background: linear-gradient(90deg,
-    #ff0080 0%,
-    #ff8c00 20%,
-    #40e0d0 40%,
-    #4169e1 60%,
-    #9370db 80%,
-    #ff1493 100%);
+    rgba(255, 0, 128, 0.5) 0%,
+    rgba(255, 140, 0, 0.5) 20%,
+    rgba(64, 224, 208, 0.5) 40%,
+    rgba(65, 105, 225, 0.5) 60%,
+    rgba(147, 112, 219, 0.5) 80%,
+    rgba(255, 20, 147, 0.5) 100%);
   background-size: 200% 100%;
   animation: rainbow-flow 6s linear infinite;
 }
