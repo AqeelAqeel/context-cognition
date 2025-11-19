@@ -1,285 +1,137 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { MachineState, PersistentState, DerivedVars, ContextPack } from '@/lib/contracts';
-import { Message, ceTurn } from '@/lib/ce';
-import { oaRun } from '@/lib/oa';
-import { buildContextPack, compileSystemPrompt } from '@/lib/co';
-import { bus } from '@/lib/eventBus';
-import { seededPersistent, seededMachineSlack, seededMachinePitch, seededMachineMedicare } from '@/lib/mockData';
-import { StatePanel } from '@/components/StatePanel';
-import { EventFeed } from '@/components/EventFeed';
-import { ModalStack, useModals } from '@/components/ModalStack';
-import { UseCaseTabs } from '@/components/UseCaseTabs';
-import { ChatCanvas } from '@/components/ChatCanvas';
-import { ConversionStrip, generateConversionActions } from '@/components/ConversionStrip';
-import { LayerPanel } from '@/components/LayerPanel';
+import { useState, useRef } from 'react';
+import { HeroSection } from '@/components/salience/HeroSection';
+import { BrainVisualization } from '@/components/salience/BrainVisualization';
+import { LayerStackVisualization } from '@/components/salience/LayerStackVisualization';
+import { BenefitsCards } from '@/components/salience/BenefitsCards';
+import { CTAButton } from '@/components/salience/CTAButton';
+import { TextContentSection } from '@/components/salience/TextContentSection';
+import { LLMObserverSection } from '@/components/salience/LLMObserverSection';
+import { DynamicDBWall } from '@/components/salience/DynamicDBWall';
+import { ACFDemoSection } from '@/components/salience/ACFDemoSection';
 
-export default function ACFDemo() {
-  // Core state
-  const [persistentState] = useState<PersistentState>(seededPersistent);
-  const [machineState, setMachineState] = useState<MachineState>(seededMachineSlack);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [isTyping, setIsTyping] = useState(false);
-  
-  // Derived state
-  const [derivedVars, setDerivedVars] = useState<DerivedVars>(() => oaRun(machineState, persistentState));
-  const [contextPack, setContextPack] = useState<ContextPack>(() => buildContextPack(machineState, persistentState, derivedVars));
-  const [compiledPrompt, setCompiledPrompt] = useState<string>(() => compileSystemPrompt(contextPack));
-  
-  // UI state
-  const { modals, showModal, dismissModal } = useModals();
+export default function SalienceLanding() {
+  const [currentSection, setCurrentSection] = useState(0);
+  const demoSectionRef = useRef<HTMLDivElement>(null);
 
-  // Update derived state when machine state changes
-  useEffect(() => {
-    const newDerivedVars = oaRun(machineState, persistentState);
-    setDerivedVars(newDerivedVars);
-    
-    const newContextPack = buildContextPack(machineState, persistentState, newDerivedVars);
-    setContextPack(newContextPack);
-    
-    const newCompiledPrompt = compileSystemPrompt(newContextPack);
-    setCompiledPrompt(newCompiledPrompt);
-  }, [machineState.route, machineState.ui.panel, machineState.featureFlags]);
-
-  // Separate effect for modal triggers to avoid infinite loops
-  useEffect(() => {
-    if (persistentState.budgets.tokensLeft < 2000) {
-      showModal({
-        type: 'budget',
-        layer: 'co',
-        title: 'Low Budget Warning',
-        message: `Only ${persistentState.budgets.tokensLeft} tokens remaining. Heavy tools will be disabled.`
-      });
-    }
-    
-    if (derivedVars.riskFlags.includes('cognitive_load')) {
-      showModal({
-        type: 'risk',
-        layer: 'oa',
-        title: 'Cognitive Load Risk',
-        message: 'This interface may be complex for older users. Consider simplifying interactions.'
-      });
-    }
-  }, [derivedVars.riskFlags, persistentState.budgets.tokensLeft, showModal]);
-
-  const handleRouteChange = (route: string) => {
-    let newMachineState: MachineState;
-    
-    if (route.startsWith('/slack')) {
-      newMachineState = { ...seededMachineSlack, timeISO: new Date().toISOString() };
-    } else if (route.startsWith('/pitch')) {
-      newMachineState = { ...seededMachinePitch, timeISO: new Date().toISOString() };
-    } else {
-      newMachineState = { ...seededMachineMedicare, timeISO: new Date().toISOString() };
-    }
-    
-    setMachineState(newMachineState);
-    setMessages([]); // Clear chat when switching tabs
-    
-    bus.emit('state_changed', {
-      key: 'route',
-      oldValue: machineState.route,
-      newValue: route
-    });
+  const scrollToDemo = () => {
+    demoSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
-
-  const handleFeatureFlagToggle = (flag: string, value: boolean) => {
-    const newMachineState = {
-      ...machineState,
-      featureFlags: { ...machineState.featureFlags, [flag]: value },
-      timeISO: new Date().toISOString()
-    };
-    
-    setMachineState(newMachineState);
-    
-    bus.emit('state_changed', {
-      key: `featureFlags.${flag}`,
-      oldValue: machineState.featureFlags[flag],
-      newValue: value
-    });
-  };
-
-  const handleSendMessage = async (text: string) => {
-    // Add user message
-    const userMessage: Message = {
-      id: Math.random().toString(36).substr(2, 9),
-      text,
-      sender: 'user',
-      timestamp: new Date().toISOString()
-    };
-    
-    setMessages(prev => [...prev, userMessage]);
-    setIsTyping(true);
-    
-    bus.emit('message_submitted', {
-      text,
-      sender: 'user'
-    });
-
-    // Simulate AI thinking time
-    await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 1000));
-    
-    // Generate AI response using CE
-    const aiMessage = ceTurn(text, contextPack);
-    setMessages(prev => [...prev, aiMessage]);
-    setIsTyping(false);
-    
-    bus.emit('message_submitted', {
-      text: aiMessage.text,
-      sender: 'assistant'
-    });
-  };
-
-  const handleConversionAction = (intent: string) => {
-    // Convert intent to user message
-    const intentMessages: Record<string, string> = {
-      'create_checklist': 'Please create a rollout checklist for our feature deployment',
-      'generate_outline': 'Generate a pitch outline for investors',
-      'prefill_form': 'Help me pre-fill the Medicare Part B form',
-      'validate_bindings': 'Validate our message templates',
-      'extract_proof_points': 'Extract key proof points from our data',
-      'refine_narrative': 'Help refine our fundraising narrative',
-      'call_script': 'Generate a script for calling Medicare support'
-    };
-    
-    const message = intentMessages[intent] || `Please help with: ${intent}`;
-    handleSendMessage(message);
-  };
-
-  const conversionActions = generateConversionActions(
-    derivedVars.affordances,
-    contextPack.objectives,
-    machineState.route,
-    persistentState.budgets
-  );
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="max-w-8xl mx-auto">
-        {/* Modern Header */}
-        <div className="bg-white border-b border-gray-200 px-8 py-8">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-4xl font-bold text-gray-900 tracking-tight mb-3">
-                Adaptive Context Framework
-              </h1>
-              <p className="text-lg text-gray-600 font-medium">
-                3-Layer LLM Architecture Visualization Platform
-              </p>
-              <p className="text-sm text-gray-500 mt-1 font-mono">
-                CE → OA → CO Pipeline
-              </p>
-            </div>
-            <div className="hidden lg:flex items-center space-x-4">
-              <div className="text-right">
-                <div className="text-sm text-gray-500">Active Session</div>
-                <div className="text-lg font-semibold text-green-600">Live</div>
-              </div>
-            </div>
-          </div>
+    <div className="bg-black text-white overflow-x-hidden">
+
+      {/* Hero Section */}
+      <HeroSection />
+
+      {/* Brain Visualization */}
+      <BrainVisualization />
+
+      {/* Layer Stack Visualization */}
+      <LayerStackVisualization />
+
+      {/* Benefits Cards */}
+      <BenefitsCards />
+
+      {/* CTA to Demo */}
+      <section className="min-h-[50vh] flex items-center justify-center relative py-20">
+        <div className="text-center">
+          <h2 className="text-4xl md:text-5xl font-bold mb-8 text-shadow-elegant">
+            <span className="bg-gradient-to-r from-white to-gray-300 bg-clip-text text-transparent">
+              See It In Action
+            </span>
+          </h2>
+          <p className="text-lg text-gray-400 mb-12 max-w-2xl mx-auto">
+            Experience how Salience transforms organizational memory into actionable intelligence
+          </p>
+          <CTAButton onClick={scrollToDemo}>
+            Explore the Demo
+          </CTAButton>
         </div>
+      </section>
 
-        <div className="px-8 py-8">
+      {/* Text Content Section */}
+      <TextContentSection />
 
-          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            {/* Left Sidebar: System Monitoring */}
-            <div className="lg:col-span-1 space-y-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-6">
-                  System Monitor
-                </h2>
-                
-                {/* Modals */}
-                <div className="mb-6">
-                  <ModalStack modals={modals} onDismiss={dismissModal} />
-                </div>
-                
-                {/* State Panel */}
-                <StatePanel
-                  machineState={machineState}
-                  persistentState={persistentState}
-                  onFeatureFlagToggle={handleFeatureFlagToggle}
-                />
-              </div>
-              
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Activity Log
-                </h3>
-                <EventFeed />
-              </div>
-            </div>
-
-            {/* Main Content: Chat Experience */}
-            <div className="lg:col-span-3 space-y-6">
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                <div className="border-b border-gray-200 px-6 py-4">
-                  <h2 className="text-xl font-semibold text-gray-900">
-                    Interactive Experience
-                  </h2>
-                </div>
-                
-                {/* Use Case Tabs */}
-                <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
-                  <UseCaseTabs
-                    activeRoute={machineState.route}
-                    onRouteChange={handleRouteChange}
-                  />
-                </div>
-                
-                {/* Chat Canvas */}
-                <div className="p-6">
-                  <ChatCanvas
-                    messages={messages}
-                    onSendMessage={handleSendMessage}
-                    isTyping={isTyping}
-                  />
-                </div>
-              </div>
-              
-              {/* Conversion Strip */}
-              <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-                <ConversionStrip
-                  actions={conversionActions}
-                  onActionClick={handleConversionAction}
-                />
-              </div>
-            </div>
-          </div>
-        
-          {/* Layer Architecture Section - Clean & Spacious */}
-          <div className="mt-12 space-y-8">
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-bold text-gray-900 mb-3">
-                Architecture Layers
-              </h2>
-              <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-                Real-time visibility into the 3-layer intelligent system processing your requests
-              </p>
-            </div>
-            
-            <div className="space-y-8">
-              {/* Layer B: Observer/Analyst */}
-              <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-1">
-                <LayerPanel 
-                  type="oa"
-                  derivedVars={derivedVars}
-                />
-              </div>
-              
-              {/* Layer C: Conductor/Orchestrator */}
-              <div className="bg-gradient-to-r from-indigo-50 to-blue-50 rounded-2xl p-1">
-                <LayerPanel
-                  type="co" 
-                  contextPack={contextPack}
-                  compiledPrompt={compiledPrompt}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
+      {/* Demo Section */}
+      <div ref={demoSectionRef}>
+        <ACFDemoSection />
       </div>
+
+      {/* LLM Observer Section */}
+      <LLMObserverSection />
+
+      {/* Dynamic DB Wall */}
+      <DynamicDBWall />
+
+      {/* Final CTA */}
+      <section className="min-h-screen flex items-center justify-center relative py-20 spotlight">
+        <div className="absolute top-0 left-1/2 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
+
+        <div className="container mx-auto px-6 md:px-12 text-center relative z-10">
+          <h2 className="text-6xl md:text-8xl font-bold mb-8 text-shadow-glow">
+            <span className="gradient-metallic bg-clip-text text-transparent">
+              Ready to transform your organization?
+            </span>
+          </h2>
+
+          <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-16 leading-relaxed">
+            Join the future of organizational intelligence.
+            <br />
+            Maximize throughput. Minimize drift. Stay aligned.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
+            <CTAButton>
+              Get Started
+            </CTAButton>
+
+            <button className="px-12 py-5 bg-gray-900 rounded-2xl text-white font-semibold border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-105">
+              Schedule a Demo
+            </button>
+          </div>
+
+          {/* Footer info */}
+          <div className="mt-24 pt-12 border-t border-gray-800">
+            <div className="grid md:grid-cols-3 gap-8 text-left max-w-4xl mx-auto mb-12">
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-3">Product</h4>
+                <ul className="space-y-2 text-gray-400">
+                  <li>Features</li>
+                  <li>Integrations</li>
+                  <li>Pricing</li>
+                  <li>Security</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-3">Company</h4>
+                <ul className="space-y-2 text-gray-400">
+                  <li>About</li>
+                  <li>Blog</li>
+                  <li>Careers</li>
+                  <li>Contact</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="text-lg font-semibold text-white mb-3">Resources</h4>
+                <ul className="space-y-2 text-gray-400">
+                  <li>Documentation</li>
+                  <li>API Reference</li>
+                  <li>Case Studies</li>
+                  <li>Support</li>
+                </ul>
+              </div>
+            </div>
+
+            <div className="text-center text-gray-500 text-sm">
+              <p>© 2025 Salience. All rights reserved.</p>
+              <p className="mt-2">Organizational Memory & Coordination Engine</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
     </div>
   );
 }

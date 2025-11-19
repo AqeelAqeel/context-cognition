@@ -1,8 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #fafafa;
-  --foreground: #1f2937;
+  --background: #000000;
+  --foreground: #ffffff;
   --font-inter: 'Inter', ui-sans-serif, system-ui, sans-serif;
   --font-jetbrains-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', monospace;
 }
@@ -15,9 +15,108 @@
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
+  background: #000000;
+  color: #ffffff;
   font-family: var(--font-inter);
   line-height: 1.6;
   letter-spacing: -0.01em;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Scroll snap */
+.snap-section {
+  scroll-snap-type: y mandatory;
+  overflow-y: scroll;
+  height: 100vh;
+}
+
+.snap-child {
+  scroll-snap-align: start;
+  scroll-snap-stop: always;
+}
+
+/* Gradient utilities */
+.gradient-metallic {
+  background: linear-gradient(135deg,
+    #667eea 0%,
+    #764ba2 25%,
+    #f093fb 50%,
+    #4facfe 75%,
+    #00f2fe 100%);
+  background-size: 200% 200%;
+  animation: gradient-shift 8s ease infinite;
+}
+
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-rainbow {
+  background: linear-gradient(90deg,
+    #ff0080 0%,
+    #ff8c00 20%,
+    #40e0d0 40%,
+    #4169e1 60%,
+    #9370db 80%,
+    #ff1493 100%);
+  background-size: 200% 100%;
+  animation: rainbow-flow 6s linear infinite;
+}
+
+@keyframes rainbow-flow {
+  0% { background-position: 0% 50%; }
+  100% { background-position: 200% 50%; }
+}
+
+/* Text shadows */
+.text-shadow-elegant {
+  text-shadow: 0 2px 10px rgba(255, 255, 255, 0.1),
+               0 4px 20px rgba(255, 255, 255, 0.05);
+}
+
+.text-shadow-glow {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3),
+               0 0 40px rgba(255, 255, 255, 0.2);
+}
+
+/* Subtle animations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+/* Spotlight effect */
+.spotlight {
+  position: relative;
+}
+
+.spotlight::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, transparent 70%);
+  pointer-events: none;
 }
