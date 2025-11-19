@@ -17,7 +17,7 @@ export function CTAButton({ onClick, href, children }: CTAButtonProps) {
         onClick={onClick}
         className="relative px-12 py-5 bg-black rounded-2xl leading-none flex items-center gap-3 border border-gray-700 hover:border-gray-600 transition-all duration-300 hover:scale-105"
       >
-        <span className="text-xl font-bold gradient-rainbow bg-clip-text text-transparent">
+        <span className="text-xl font-bold text-white">
           {children}
         </span>
         <svg className="w-6 h-6 text-white group-hover:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor">

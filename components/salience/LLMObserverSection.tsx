@@ -99,10 +99,8 @@ export function LLMObserverSection() {
       <div className="container mx-auto px-6 md:px-12">
 
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 text-shadow-elegant">
-            <span className="gradient-metallic bg-clip-text text-transparent">
-              The LLM Observer & Interfacer
-            </span>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white text-shadow-elegant">
+            The LLM Observer & Interfacer
           </h2>
           <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto">
             Context-aware intelligence that personalizes to each team member

@@ -51,10 +51,8 @@ export function DynamicDBWall() {
       <div className="container mx-auto px-6 md:px-12">
 
         <div className="text-center mb-16">
-          <h2 className="text-5xl md:text-6xl font-bold mb-6 text-shadow-elegant">
-            <span className="bg-gradient-to-r from-gray-100 to-gray-300 bg-clip-text text-transparent">
-              Building Your Knowledge Base
-            </span>
+          <h2 className="text-5xl md:text-6xl font-bold mb-6 text-white text-shadow-elegant">
+            Building Your Knowledge Base
           </h2>
           <p className="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-8">
             Every piece of organizational data becomes part of your living memory
@@ -63,7 +61,7 @@ export function DynamicDBWall() {
           {/* Stats */}
           <div className="flex justify-center gap-8 mb-12">
             <div className="text-center">
-              <div className="text-4xl font-bold gradient-rainbow bg-clip-text text-transparent">{totalCount}</div>
+              <div className="text-4xl font-bold text-purple-400">{totalCount}</div>
               <div className="text-sm text-gray-500">Total Items Indexed</div>
             </div>
             <div className="text-center">

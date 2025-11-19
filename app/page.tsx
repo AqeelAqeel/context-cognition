@@ -70,10 +70,8 @@ export default function SalienceLanding() {
         <div className="absolute top-0 left-1/2 w-96 h-96 bg-purple-500/10 rounded-full blur-3xl" />
 
         <div className="container mx-auto px-6 md:px-12 text-center relative z-10">
-          <h2 className="text-6xl md:text-8xl font-bold mb-8 text-shadow-glow">
-            <span className="gradient-metallic bg-clip-text text-transparent">
-              Ready to transform your organization?
-            </span>
+          <h2 className="text-6xl md:text-8xl font-bold mb-8 text-white text-shadow-glow">
+            Ready to transform your organization?
           </h2>
 
           <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-16 leading-relaxed">
