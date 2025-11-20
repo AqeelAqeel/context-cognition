@@ -10,6 +10,7 @@ import { TextContentSection } from '@/components/salience/TextContentSection';
 import { LLMObserverSection } from '@/components/salience/LLMObserverSection';
 import { DynamicDBWall } from '@/components/salience/DynamicDBWall';
 import { ACFDemoSection } from '@/components/salience/ACFDemoSection';
+import { IntegrationRoadmapSection } from '@/components/salience/IntegrationRoadmapSection';
 
 export default function SalienceLanding() {
   const [currentSection, setCurrentSection] = useState(0);
@@ -64,6 +65,9 @@ export default function SalienceLanding() {
 
       {/* Dynamic DB Wall */}
       <DynamicDBWall />
+
+      {/* Integration & Roadmap Section */}
+      <IntegrationRoadmapSection />
 
       {/* Final CTA */}
       <section className="min-h-screen flex items-center justify-center relative py-20 spotlight">
