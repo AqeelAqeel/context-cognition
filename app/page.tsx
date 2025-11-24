@@ -23,6 +23,43 @@ export default function SalienceLanding() {
   return (
     <div className="bg-black text-white overflow-x-hidden">
 
+      {/* Playground Entry Button - Big Shiny Button at Top */}
+      <section className="relative py-8 px-6">
+        <div className="max-w-4xl mx-auto">
+          <a
+            href="/playground"
+            className="group relative block w-full overflow-hidden rounded-2xl border border-white/20 bg-gradient-to-r from-purple-900/30 via-cyan-900/30 to-pink-900/30 p-1 transition-all duration-500 hover:border-white/40 hover:shadow-2xl hover:shadow-cyan-500/20"
+          >
+            {/* Animated gradient border */}
+            <div className="absolute inset-0 bg-gradient-to-r from-pink-500 via-cyan-500 to-purple-500 opacity-20 blur-xl group-hover:opacity-40 transition-opacity duration-500" />
+
+            {/* Inner content */}
+            <div className="relative flex items-center justify-center gap-4 rounded-xl bg-black/80 px-8 py-6 backdrop-blur-sm">
+              {/* Pulsing glow */}
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-cyan-500/10 via-purple-500/10 to-pink-500/10 animate-pulse-subtle" />
+
+              {/* Icon */}
+              <span className="relative text-4xl">✨</span>
+
+              {/* Text */}
+              <div className="relative text-center">
+                <span className="block text-2xl md:text-3xl font-bold bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+                  Go to Visualization Experience
+                </span>
+                <span className="block text-sm text-white/50 mt-1">
+                  Explore the Infinite Canvas Playground
+                </span>
+              </div>
+
+              {/* Arrow */}
+              <span className="relative text-3xl text-white/60 group-hover:text-white group-hover:translate-x-2 transition-all duration-300">
+                →
+              </span>
+            </div>
+          </a>
+        </div>
+      </section>
+
       {/* Hero Section */}
       <HeroSection />
 
